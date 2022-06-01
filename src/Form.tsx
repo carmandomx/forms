@@ -1,23 +1,31 @@
 import React from 'react';
-import { useForm, SubmitHandler, SubmitErrorHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, SubmitErrorHandler, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import Select from 'react-select';
+
+
 type Signup = {
     username: string;
     email: string;
     password: string;
     age: number;
+    englishLevel: { label: string; value: number }
 }
 
 const schema = yup.object({
     username: yup.string().required(),
     email: yup.string().email(),
-    age: yup.number().positive().integer().required().min(18).max(99)
+    age: yup.number().positive().integer().required().min(18).max(99),
+    englishLevel: yup.object().required()
 })
 
 const SignupForm = () => {
-    const { register, handleSubmit, formState: { errors }  } = useForm<Signup>({
-        resolver: yupResolver(schema)
+    const { register, handleSubmit, formState: { errors }, control  } = useForm<Signup>({
+        resolver: yupResolver(schema),
+        defaultValues: {
+            age: 50
+        }
     });
     const onSubmit: SubmitHandler<Signup> = (data) => console.log(data);
     const onError: SubmitErrorHandler<Signup> = (errors) => console.log(errors);
@@ -49,7 +57,13 @@ const SignupForm = () => {
             Age
             <input type={'number'} {...register('age', { required: true, min: 18, max: 99 })} />
             </label>
-
+            <Controller 
+            name='englishLevel'
+            control={control}
+            render={({ field }) => <Select {...field} options={[ {label: 'Advanced', value: 5}, {label: 'Intermediate', value: 3}, { label: 'Basic', value: 1 } ]}/>}
+            
+            />
+            
             <button type="submit">Comienza tu aventura!</button>
         </form>
     )
